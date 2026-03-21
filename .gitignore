@@ -1,2 +1,28 @@
 .venv*/
-.env
+
+# node modules (가장 중요)
+node_modules/
+
+# build 결과물
+.next/
+out/
+dist/
+
+# 환경 변수
+.env*
+
+# 로그
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS 관련
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# 기타
+*.log
