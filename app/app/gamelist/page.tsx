@@ -11,7 +11,7 @@ export default function GamelistPage() {
     id: string | number;
     name: string;
     image: string | null;
-    genres?: string;
+    genres?: string[];
     rating?: number;
   };
 

@@ -3,4 +3,16 @@
 
 일단
 
-GET https://pplay.server.com/
+# 쿼리스트링에 아무것도 넣지 않음으로써 모든 게임(약 500개)를 가져오는 요청
+GET https://pplay.server.com/games
+
+# igdb에세 설정 가능한 요소
+- genre: 장르
+- platform: 플랫폼
+- popularity: 인기도 (하위 n%, 상위 n%)
+- release: 출시일 (%Y-%m-%d ~ %Y-%m-%d)
+
+# igdb에서 제공하지 않는 요소소
+- price: 가격 (n원 이하, n원 이상)
+- discount: 할인도 (n%이상, n% 이하)
+- selled: 누적 판매량 (n장 이상, n장 이하)
