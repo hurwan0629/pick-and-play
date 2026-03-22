@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
 import requests
+import json
 
 
 load_dotenv()
@@ -45,14 +46,26 @@ def build_cover_url(image_id: str | None, size: str = "cover_big") -> str | None
 @app.get("/games")
 def getGameList():
     print("[GET games요청 받음]")
-    print(f"{IGDB_CLIENT_ID}, {IGDB_CLIENT_SECRET}, {IGDB_ACCESS_TOKEN}")
     all_games=[]
 
     # IGDB에서 게임 데이터 받아오기 
     # id, image, name, genre, rating 받아오기
     url="https://api.igdb.com/v4/games"
-    query=f"""
-    fields id, cover.image_id, name, genres.name, rating;
+
+    query = "fields *;"
+    res = requests.post(url, headers=igdb_headers, data=query)
+    res.raise_for_status()
+    print(res.json()[1].keys())
+
+
+    """
+    fields id, name, cover.image_id, genres.name, rating, total_rating, popularity;
+    where total_rating_count > 50;
+    sort total_rating_count desc;
+    limit 50;
+    """
+    query = """
+    fields id, cover.image_id, name, genres.name, rating, total_rating, total_rating_count;
     sort rating desc;
     limit 100;
     """
@@ -77,6 +90,10 @@ def getGameList():
                 "image": build_cover_url(
                     game.get("cover", {}).get("image_id") if game.get("cover") else None
                 ),
+                "total_rating": game.get("total_rating"),
+                "total_rating_count": game.get("total_rating_count"),
+                # "popularity": game.get("popularity"),
+                # "follows": game.get("follows")
             })
-
+    
     return {"games": all_games}
