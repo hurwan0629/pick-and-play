@@ -26,3 +26,5 @@ Thumbs.db
 
 # 기타
 *.log
+
+*__pycache__
