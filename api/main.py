@@ -28,7 +28,9 @@ app = FastAPI(
     description="게임 추천 api 서버"
 )
 origins = [
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "https://friendly-palm-tree-rw6p57rjp7425gq-3000.app.github.dev",
+    "*"
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -66,6 +68,7 @@ def getGameList():
     """
     query = """
     fields id, cover.image_id, name, genres.name, rating, total_rating, total_rating_count;
+    where total_rating_count > 100;
     sort rating desc;
     limit 100;
     """

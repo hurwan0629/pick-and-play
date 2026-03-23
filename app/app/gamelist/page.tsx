@@ -6,6 +6,7 @@ export default function GamelistPage() {
   const [debugMessage, setDebugMessage] = useState("");
   const [games, setGames] = useState<Game[]>([]);
   const [imageMap, setImageMap] = useState<Record<string, string>>({});
+  const [keyword, setKeyword] = useState("");
 
   type Game = {
     id: string | number;
@@ -13,13 +14,16 @@ export default function GamelistPage() {
     image: string | null;
     genres?: string[];
     rating?: number;
+    total_rating_count?: number;
   };
 
   useEffect(() => {
     const init = async () => {
       try {
         const gameDatas = await getAllGames();
-  
+
+        console.log(typeof(gameDatas));
+
         const gamesWithImages = await Promise.all(
           gameDatas.map(async (game: any) => {
             const imageUrl = await getImageFromCache(game.id);
@@ -29,14 +33,14 @@ export default function GamelistPage() {
             };
           })
         );
-  
+
         setGames(gamesWithImages);
       } catch (e) {
         console.log(e);
         setDebugMessage("저장된 게임을 불러오지 못했습니다.");
       }
     };
-  
+
     init();
   }, []);
 
@@ -143,6 +147,23 @@ export default function GamelistPage() {
     }
   };
 
+  const keywordSearch = async () => {
+    const gameDatas = await getAllGames();
+
+    const fileredGameDatas = gameDatas.filter(item => item.name.toLowerCase().includes(keyword.toLocaleLowerCase()));
+
+    const gamesWithImages = await Promise.all(
+      fileredGameDatas.map(async (game: any) => {
+        const imageUrl = await getImageFromCache(game.id);
+        return {
+          ...game,
+          image: imageUrl,
+        };
+      })
+    );
+    setGames(gamesWithImages);
+  }
+
   // 캐시에서 게임 리스트 가져오기
   // 게임 이미지, 이름, 장르, 평점, ... 을 카드 형태로 #game-containier에 넣기기
   return (
@@ -153,8 +174,13 @@ export default function GamelistPage() {
           <input
             placeholder="게임을 검색하세요"
             className="w-[260px] border p-2 rounded"
+            onChange={(e)=> setKeyword(e.target.value)}
+            onKeyDown={(e) => { if(e.key==="Enter") keywordSearch() }}
           />
-          <button className="px-4 py-2 bg-blue-500 text-white rounded">
+          <button
+            className="px-4 py-2 bg-blue-500 text-white rounded"
+            onClick={keywordSearch}
+          >
             검색
           </button>
           <button
@@ -172,7 +198,7 @@ export default function GamelistPage() {
 
       {/* 아래 스크롤 영역 */}
       <div className="flex-1 overflow-y-auto p-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {games.map((game: any) => (
             <div key={game.id} className="border p-3 rounded bg-white">
               <img
@@ -183,6 +209,7 @@ export default function GamelistPage() {
               <h3 className="font-semibold">{game.name}</h3>
               <p>{Array.isArray(game.genres) ? game.genres.join(", ") : ""}</p>
               <p>⭐ {game.rating}</p>
+              <p>신뢰도 {game.total_rating_count}</p>
             </div>
           ))}
         </div>
