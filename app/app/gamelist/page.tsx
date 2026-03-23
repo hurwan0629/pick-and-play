@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import GameCard from "../components/gameCard";
 
 export default function GamelistPage() {
   const [debugMessage, setDebugMessage] = useState("");
@@ -8,14 +10,7 @@ export default function GamelistPage() {
   const [imageMap, setImageMap] = useState<Record<string, string>>({});
   const [keyword, setKeyword] = useState("");
 
-  type Game = {
-    id: string | number;
-    name: string;
-    image: string | null;
-    genres?: string[];
-    rating?: number;
-    total_rating_count?: number;
-  };
+  const router = useRouter();
 
   useEffect(() => {
     const init = async () => {
@@ -132,6 +127,10 @@ export default function GamelistPage() {
         method: "GET",
       });
       const data = await res.json();
+      Object.entries(data.games[0]).forEach(([key, value]) => {
+          console.log(`${key}: ${typeof(value)}`);
+        }
+      );
       setGames(data.games);
 
       const cache = await caches.open("app-v1");
@@ -189,6 +188,12 @@ export default function GamelistPage() {
           >
             게임 최신화하기
           </button>
+          <button
+            className="px-4 py-2 bg-blue-500 text-white rounded"
+            onClick={()=> router.push('/')}
+          >
+            메인페이지로 가기기
+          </button>
         </div>
 
         {debugMessage && (
@@ -199,18 +204,8 @@ export default function GamelistPage() {
       {/* 아래 스크롤 영역 */}
       <div className="flex-1 overflow-y-auto p-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-          {games.map((game: any) => (
-            <div key={game.id} className="border p-3 rounded bg-white">
-              <img
-                src={game.image}
-                alt={game.name}
-                className="w-full h-64 object-cover rounded mb-2"
-              />
-              <h3 className="font-semibold">{game.name}</h3>
-              <p>{Array.isArray(game.genres) ? game.genres.join(", ") : ""}</p>
-              <p>⭐ {game.rating}</p>
-              <p>신뢰도 {game.total_rating_count}</p>
-            </div>
+          {games.map((game: Game) => (
+            <GameCard key={game.id} game={game} />
           ))}
         </div>
       </div>
